@@ -22,18 +22,18 @@ const sendWelcomeEmail = async (email, name) => {
     await resend.emails.send({
       from: "Resend <onboarding@resend.dev>", 
       to: email,
-      subject: "Welcome to Servizo 🎉",
+      subject: "Welcome to Servizo",
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6">
-          <h2>Welcome to Servizo, ${name}! 👋</h2>
+          <h2>Welcome to Servizo, ${name}! </h2>
 
           <p>Thank you for being part of <b>Servizo</b>.</p>
 
           <p>You can now:</p>
           <ul>
-            <li>✅ Get online services at home</li>
-            <li>✅ Get work opportunities based on your skills</li>
-            <li>✅ Connect with trusted service providers</li>
+            <li>Get online services at home</li>
+            <li>Get work opportunities based on your skills</li>
+            <li>Connect with trusted service providers</li>
           </ul>
 
           <p>

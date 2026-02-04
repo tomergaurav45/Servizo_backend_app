@@ -46,7 +46,7 @@ router.post("/register", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ Registration error:", error);
+    console.error("Registration error:", error);
 
 
     if (error.code === 11000) {
