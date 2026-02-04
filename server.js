@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config(); // 👈 MUST BE FIRST
+dotenv.config(); 
 import 'dotenv/config';
 import express from "express";
 import mongoose from "mongoose";
