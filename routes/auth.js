@@ -4,7 +4,7 @@ import UserSetup from "../models/UserSetup.js";
 
 const router = express.Router();
 
-// ✅ POST: Register new user
+
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -48,7 +48,7 @@ router.post("/register", async (req, res) => {
   } catch (error) {
     console.error("❌ Registration error:", error);
 
-    // 🔐 Handle duplicate email safely
+
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,

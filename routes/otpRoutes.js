@@ -5,20 +5,18 @@ import bcrypt from "bcryptjs";
 
 const router = express.Router();
 
-// 🔐 In-memory OTP store (OK for now, Redis recommended later)
+
 const otpStore = new Map();
 
-// ✉️ Resend client
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 const OTP_EXPIRY = Number(process.env.OTP_EXPIRY_MINUTES || 5) * 60 * 1000;
 
-// 🔢 OTP generator
+
 const generateOTP = () =>
   Math.floor(100000 + Math.random() * 900000);
 
-// ============================
-// SEND EMAIL OTP (REGISTER)
-// ============================
+
 router.post("/send-email-otp", async (req, res) => {
   try {
     const { email } = req.body;
@@ -29,7 +27,7 @@ router.post("/send-email-otp", async (req, res) => {
         message: "Email is required",
       });
 
-    // ❌ Block if already registered
+    
     const existingUser = await UserSetup.findOne({ email });
     if (existingUser)
       return res.status(400).json({
@@ -70,9 +68,7 @@ router.post("/send-email-otp", async (req, res) => {
   }
 });
 
-// ============================
-// VERIFY EMAIL OTP
-// ============================
+
 router.post("/verify-email-otp", (req, res) => {
   const { email, otp } = req.body;
 
@@ -112,9 +108,6 @@ router.post("/verify-email-otp", (req, res) => {
   });
 });
 
-// ============================
-// FORGOT PASSWORD → SEND OTP
-// ============================
 router.post("/forgot-password/send-otp", async (req, res) => {
   try {
     const { email } = req.body;
@@ -163,9 +156,7 @@ router.post("/forgot-password/send-otp", async (req, res) => {
   }
 });
 
-// ============================
-// RESET PASSWORD
-// ============================
+
 router.post("/forgot-password/reset", async (req, res) => {
   try {
     const { email, newPassword } = req.body;

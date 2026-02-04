@@ -26,7 +26,7 @@ const userSetupSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      select: false, // 🔐 never return password by default
+      select: false,
     },
   },
   {
@@ -35,7 +35,7 @@ const userSetupSchema = new mongoose.Schema(
   }
 );
 
-// ✅ AUTO-GENERATE userId
+
 userSetupSchema.pre("save", async function (next) {
   if (!this.isNew) return next();
 
