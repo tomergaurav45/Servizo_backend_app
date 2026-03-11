@@ -28,6 +28,11 @@ const userSetupSchema = new mongoose.Schema(
       required: true,
       select: false,
     },
+
+    role: {
+      type: String,
+
+    }
   },
   {
     timestamps: true,

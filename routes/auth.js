@@ -7,12 +7,52 @@ const router = express.Router();
 
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { userId, name, email, password, role } = req.body;
+
+
+    if (userId) {
+
+      const updateData = {};
+
+      if (name) updateData.name = name;
+      if (email) updateData.email = email;
+      if (role) updateData.role = role;
+
+      if (password) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        updateData.password = hashedPassword;
+      }
+
+      const updatedUser = await UserSetup.findOneAndUpdate(
+        { userId },
+        { $set: updateData },
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: "User updated successfully",
+        user: {
+          userId: updatedUser.userId,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          role: updatedUser.role,
+        },
+      });
+    }
+
 
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required",
+        message: "Name, email and password are required",
       });
     }
 
@@ -32,6 +72,7 @@ router.post("/register", async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      role,
     });
 
     await newUser.save();
@@ -43,9 +84,12 @@ router.post("/register", async (req, res) => {
         userId: newUser.userId,
         name: newUser.name,
         email: newUser.email,
+        role: newUser.role,
       },
     });
+
   } catch (error) {
+
     console.error("Registration error:", error);
 
     if (error.code === 11000) {
@@ -75,10 +119,10 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    
+
     const user = await UserSetup.findOne({ email }).select("+password");
 
-    
+
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -87,11 +131,11 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    
+
 
     const isMatch = await bcrypt.compare(password, user.password);
 
-   
+
     if (!isMatch) {
       return res.status(400).json({
         success: false,
@@ -100,7 +144,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    
+
     res.status(200).json({
       success: true,
       message: "Login successful",
@@ -108,6 +152,7 @@ router.post("/login", async (req, res) => {
         userId: user.userId,
         name: user.name,
         email: user.email,
+        role: user.role
       },
     });
   } catch (error) {
