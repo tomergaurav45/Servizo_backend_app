@@ -7,22 +7,41 @@ const router = express.Router();
 
 router.post("/register", async (req, res) => {
   try {
-    const { userId, name, email, password, role } = req.body;
+    const {
+      userId,
+      name,
+      email,
+      password,
+      role,
+      phone,
+      dob,
+      gender,
+      skills,
+      experience,
+      availability,
+    } = req.body;
 
-
+    // UPDATE USER
     if (userId) {
 
       const updateData = {};
 
-      if (name) updateData.name = name;
-      if (email) updateData.email = email;
-      if (role) updateData.role = role;
+if (name !== undefined) updateData.name = name;
+if (email !== undefined) updateData.email = email;
+if (role !== undefined) updateData.role = role;
+if (phone !== undefined) updateData.phone = phone;
+if (dob !== undefined) updateData.dob = dob;
+if (gender !== undefined) updateData.gender = gender;
 
-      if (password) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        updateData.password = hashedPassword;
-      }
+if (Array.isArray(skills)) updateData.skills = skills;
 
+if (experience !== undefined) updateData.experience = experience;
+if (availability !== undefined) updateData.availability = availability;
+
+if (password) {
+  const hashedPassword = await bcrypt.hash(password, 10);
+  updateData.password = hashedPassword;
+}
       const updatedUser = await UserSetup.findOneAndUpdate(
         { userId },
         { $set: updateData },
@@ -39,16 +58,11 @@ router.post("/register", async (req, res) => {
       return res.json({
         success: true,
         message: "User updated successfully",
-        user: {
-          userId: updatedUser.userId,
-          name: updatedUser.name,
-          email: updatedUser.email,
-          role: updatedUser.role,
-        },
+        user: updatedUser,
       });
     }
 
-
+    // CREATE USER
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -73,6 +87,12 @@ router.post("/register", async (req, res) => {
       email,
       password: hashedPassword,
       role,
+      phone,
+      dob,
+      gender,
+      skills,
+      experience,
+      availability,
     });
 
     await newUser.save();
@@ -80,12 +100,7 @@ router.post("/register", async (req, res) => {
     res.status(201).json({
       success: true,
       message: "User registered successfully",
-      user: {
-        userId: newUser.userId,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
-      },
+      user: newUser,
     });
 
   } catch (error) {
@@ -152,7 +167,13 @@ router.post("/login", async (req, res) => {
         userId: user.userId,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        skills: user.skills,
+        availability:user.availability,
+        dob:user.dob,
+        experience:user.experience,
+        gender:user.gender,
+        phone:user.phone
       },
     });
   } catch (error) {
@@ -163,7 +184,5 @@ router.post("/login", async (req, res) => {
     });
   }
 });
-
-
 
 export default router;

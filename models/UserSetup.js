@@ -31,8 +31,33 @@ const userSetupSchema = new mongoose.Schema(
 
     role: {
       type: String,
+    },
 
-    }
+    phone: {
+      type: String,
+      trim: true,
+    },
+
+    dob: {
+      type: String,
+    },
+
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Other"],
+    },
+
+    skills: {
+      type: [String],   // multiple skills
+    },
+
+    experience: {
+      type: String,   // years
+    },
+
+    availability: {
+      type: String,   // Full-time / Part-time / Weekends
+    },
   },
   {
     timestamps: true,
