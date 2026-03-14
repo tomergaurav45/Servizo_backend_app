@@ -48,15 +48,15 @@ const userSetupSchema = new mongoose.Schema(
     },
 
     skills: {
-      type: [String],   // multiple skills
+      type: [String],   
     },
 
     experience: {
-      type: String,   // years
+      type: String,   
     },
 
     availability: {
-      type: String,   // Full-time / Part-time / Weekends
+      type: String,   
     },
   },
   {
