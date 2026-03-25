@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import otpRoutes from "./routes/otpRoutes.js";
 import registerRoutes from "./routes/auth.js";
+import saveadresses from "./routes/addressRoutes.js"
 
 const app = express();
 const PORT = 5000;
@@ -15,6 +16,7 @@ app.use(express.json());
 
 app.use("/api", otpRoutes);
 app.use("/api", registerRoutes);
+app.use("/api", saveadresses);
 
 mongoose
   .connect(process.env.MONGODB_URI)
