@@ -9,6 +9,7 @@ import registerRoutes from "./routes/auth.js";
 import saveadresses from "./routes/addressRoutes.js"
 import changePassword from "./routes/changePasswordRoutes.js"
 import createIssue from "./routes/issueRoutes.js"
+import allServices from "./routes/serviceRoutes.js"
 
 const app = express();
 const PORT = 5000;
@@ -21,6 +22,7 @@ app.use("/api", registerRoutes);
 app.use("/api", saveadresses);
 app.use("/api", changePassword);
 app.use("/api", createIssue);
+app.use("/api", allServices );
 
 mongoose
   .connect(process.env.MONGODB_URI)
