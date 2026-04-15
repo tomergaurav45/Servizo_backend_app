@@ -21,27 +21,27 @@ router.post("/register", async (req, res) => {
       availability,
     } = req.body;
 
-    // UPDATE USER
+
     if (userId) {
 
       const updateData = {};
 
-if (name !== undefined) updateData.name = name;
-if (email !== undefined) updateData.email = email;
-if (role !== undefined) updateData.role = role;
-if (phone !== undefined) updateData.phone = phone;
-if (dob !== undefined) updateData.dob = dob;
-if (gender !== undefined) updateData.gender = gender;
+      if (name !== undefined) updateData.name = name;
+      if (email !== undefined) updateData.email = email;
+      if (role !== undefined) updateData.role = role;
+      if (phone !== undefined) updateData.phone = phone;
+      if (dob !== undefined) updateData.dob = dob;
+      if (gender !== undefined) updateData.gender = gender;
 
-if (Array.isArray(skills)) updateData.skills = skills;
+      if (Array.isArray(skills)) updateData.skills = skills;
 
-if (experience !== undefined) updateData.experience = experience;
-if (availability !== undefined) updateData.availability = availability;
+      if (experience !== undefined) updateData.experience = experience;
+      if (availability !== undefined) updateData.availability = availability;
 
-if (password) {
-  const hashedPassword = await bcrypt.hash(password, 10);
-  updateData.password = hashedPassword;
-}
+      if (password) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        updateData.password = hashedPassword;
+      }
       const updatedUser = await UserSetup.findOneAndUpdate(
         { userId },
         { $set: updateData },
@@ -62,7 +62,7 @@ if (password) {
       });
     }
 
-    // CREATE USER
+
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -141,7 +141,7 @@ router.post("/login", async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "Wrong email",
+        message: "User with this Email not exist please Register",
         field: "email",
       });
     }
@@ -169,11 +169,11 @@ router.post("/login", async (req, res) => {
         email: user.email,
         role: user.role,
         skills: user.skills,
-        availability:user.availability,
-        dob:user.dob,
-        experience:user.experience,
-        gender:user.gender,
-        phone:user.phone
+        availability: user.availability,
+        dob: user.dob,
+        experience: user.experience,
+        gender: user.gender,
+        phone: user.phone
       },
     });
   } catch (error) {

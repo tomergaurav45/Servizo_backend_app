@@ -10,6 +10,7 @@ import saveadresses from "./routes/addressRoutes.js"
 import changePassword from "./routes/changePasswordRoutes.js"
 import createIssue from "./routes/issueRoutes.js"
 import allServices from "./routes/serviceRoutes.js"
+import createBooking from "./routes/bookingDetailRoutes.js"
 
 const app = express();
 const PORT = 5000;
@@ -23,6 +24,7 @@ app.use("/api", saveadresses);
 app.use("/api", changePassword);
 app.use("/api", createIssue);
 app.use("/api", allServices );
+app.use("/api", createBooking );
 
 mongoose
   .connect(process.env.MONGODB_URI)
