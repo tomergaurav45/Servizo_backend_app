@@ -1,15 +1,22 @@
 import express from "express";
-import { Resend } from "resend";
 import UserSetup from "../models/UserSetup.js";
 import bcrypt from "bcryptjs";
+import { sendOTP } from "./sendMail.js";
+import nodemailer from "nodemailer";
 
 const router = express.Router();
+
+ const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "tomergaurav177@gmail.com",
+    pass: "pjoy jtvp klpn wakq", 
+  },
+});
 
 
 const otpStore = new Map();
 
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 const OTP_EXPIRY = Number(process.env.OTP_EXPIRY_MINUTES || 5) * 60 * 1000;
 
 
@@ -19,36 +26,19 @@ const generateOTP = () =>
 
 const sendWelcomeEmail = async (email, name) => {
   try {
-    await resend.emails.send({
-      from: "Resend <onboarding@resend.dev>", 
+    await transporter.sendMail({
+      from: "Servizo <yourgmail@gmail.com>",
       to: email,
       subject: "Welcome to Servizo",
       html: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.6">
-          <h2>Welcome to Servizo, ${name}! </h2>
-
-          <p>Thank you for being part of <b>Servizo</b>.</p>
-
-          <p>You can now:</p>
-          <ul>
-            <li>Get online services at home</li>
-            <li>Get work opportunities based on your skills</li>
-            <li>Connect with trusted service providers</li>
-          </ul>
-
-          <p>
-            We’re excited to have you with us and look forward to helping you grow.
-          </p>
-
-          <p style="margin-top:20px">
-            — Team <b>Servizo</b>
-          </p>
-        </div>
+        <h2>Welcome ${name} 🎉</h2>
+        <p>Thanks for joining Servizo</p>
       `,
     });
+
+    console.log("Welcome email sent:", email);
   } catch (error) {
     console.error("Welcome email failed:", error);
-    
   }
 };
 
@@ -57,47 +47,31 @@ router.post("/send-email-otp", async (req, res) => {
   try {
     const { email } = req.body;
 
-    if (!email)
-      return res.status(400).json({
+    if (!email) {
+      return res.json({
         success: false,
         message: "Email is required",
       });
+    }
 
     
-    const existingUser = await UserSetup.findOne({ email });
-    if (existingUser)
-      return res.status(400).json({
-        success: false,
-        message: "Email already registered",
-        field: "email",
-      });
-
-    const otp = generateOTP();
+    const otp = Math.floor(100000 + Math.random() * 900000);
 
     otpStore.set(email, {
-      otp,
-      expiresAt: Date.now() + OTP_EXPIRY,
-    });
+  otp,
+  expiresAt: Date.now() + OTP_EXPIRY,
+});
 
-    await resend.emails.send({
-      from: "Resend <onboarding@resend.dev>",
-      to: email,
-      subject: "Servizo OTP Verification",
-      html: `
-        <h2>Servizo</h2>
-        <h1>${otp}</h1>
-        <p>This OTP is valid for 5 minutes.</p>
-        <p><b>Do not share this OTP.</b></p>
-      `,
-    });
+    await sendOTP(email, otp);
 
     res.json({
       success: true,
       message: "OTP sent successfully",
+      otp, 
     });
-  } catch (err) {
-    console.error("OTP Send Error:", err);
-    res.status(500).json({
+
+  } catch (error) {
+    res.json({
       success: false,
       message: "Failed to send OTP",
     });
@@ -168,16 +142,7 @@ router.post("/forgot-password/send-otp", async (req, res) => {
       expiresAt: Date.now() + OTP_EXPIRY,
     });
 
-    await resend.emails.send({
-      from: "Resend <onboarding@resend.dev>",
-      to: email,
-      subject: "Servizo Password Reset OTP",
-      html: `
-        <h2>Password Reset</h2>
-        <h1>${otp}</h1>
-        <p>OTP valid for 5 minutes</p>
-      `,
-    });
+    await sendOTP(email, otp);
 
     res.json({
       success: true,
