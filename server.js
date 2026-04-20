@@ -24,6 +24,7 @@ app.use("/api", registerRoutes);
 app.use("/api", saveadresses);
 app.use("/api", changePassword);
 app.use("/api", createIssue);
+app.use("/api", createBooking);
 app.use("/api", allServices );
 app.use("/api", providerrequest );
 
