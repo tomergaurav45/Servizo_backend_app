@@ -10,13 +10,14 @@ router.post("/create-booking", async (req, res) => {
       userId,
       serviceName,
       subService,
+      serviceCategory,
       description,
       notes,
       address,
       providerId,
     } = req.body;
 
-    if (!userId || !serviceName || !subService || !description || !address) {
+    if (!userId || !serviceName || !serviceCategory || !subService || !description || !address) {
       return res.status(400).json({
         success: false,
         message: "Required fields missing",
@@ -39,6 +40,7 @@ router.post("/create-booking", async (req, res) => {
       bookingId,
       userId,
       serviceName,
+      serviceCategory,
       subService,
       description,
       notes,

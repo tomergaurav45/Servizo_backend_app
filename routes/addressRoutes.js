@@ -3,8 +3,7 @@ import UserAddress from "../models/UserAddress.js";
 
 const router = express.Router();
 
-
-router.post("/save-adresses", async (req, res) => {
+router.post("/save-addresses", async (req, res) => {
   try {
     const {
       userId,
@@ -35,28 +34,32 @@ router.post("/save-adresses", async (req, res) => {
       user.addresses.forEach(addr => (addr.isDefault = false));
     }
 
+
     const newAddress = {
       fullAddress,
       landmark,
       flatNumber,
       type,
       other,
-      city,
-      state,
-      pincode,
+      city: city || "Unknown",
+      state: state || "",
+      pincode: pincode || "",
       latitude,
       longitude,
       isDefault,
     };
 
-    if (!user) {
 
+    if (!user) {
+      newAddress.isDefault = true;
       user = new UserAddress({
         userId,
         addresses: [newAddress],
       });
     } else {
-
+      if (!user.addresses.some(a => a.isDefault)) {
+        newAddress.isDefault = true;
+      }
       user.addresses.push(newAddress);
     }
 

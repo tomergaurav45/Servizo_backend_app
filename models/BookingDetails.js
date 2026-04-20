@@ -13,6 +13,11 @@ const bookingSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    serviceCategory: {
+      type: String,
+      required: true,
+      index: true,
+    },
 
     serviceName: {
       type: String,
@@ -51,7 +56,7 @@ const bookingSchema = new mongoose.Schema(
       index: true,
     },
 
-  
+
     providerId: {
       type: String,
       default: null,

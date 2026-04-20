@@ -25,7 +25,7 @@ router.post("/accept", async (req, res) => {
       });
     }
 
-   
+
     if (booking.status !== "OPEN") {
       return res.json({
         success: false,
@@ -86,9 +86,9 @@ router.get("/provider-requests", async (req, res) => {
 
     const requests = await Booking.find({
       status: "OPEN",
-      serviceName: { $in: provider.skills },
+      serviceCategory: { $in: provider.skills },
       "address.city": defaultAddress.city,
-    }).sort({ createdAt: -1 }); 
+    }).sort({ createdAt: -1 });
 
     res.json({
       success: true,
