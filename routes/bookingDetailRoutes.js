@@ -165,4 +165,63 @@ router.get("/user-bookings", async (req, res) => {
   }
 });
 
+router.post("/complete-booking", async (req, res) => {
+  try {
+    const { bookingId, providerId } = req.body;
+
+    if (!bookingId || !providerId) {
+      return res.json({
+        success: false,
+        message: "bookingId and providerId required",
+      });
+    }
+
+    const booking = await Booking.findOne({ bookingId });
+
+    if (!booking) {
+      return res.json({
+        success: false,
+        message: "Booking not found",
+      });
+    }
+
+
+    if (
+      booking.participants?.provider?.providerId !== providerId
+    ) {
+      return res.json({
+        success: false,
+        message: "Not authorized",
+      });
+    }
+
+
+    if (booking.status !== "ASSIGNED") {
+      return res.json({
+        success: false,
+        message: "Job not in progress",
+      });
+    }
+
+
+    booking.status = "COMPLETED";
+
+    await booking.save();
+
+    res.json({
+      success: true,
+      message: "Job completed successfully",
+      data: booking,
+    });
+
+  } catch (err) {
+    console.error("Complete Booking Error:", err);
+
+    res.json({
+      success: false,
+      message: "Server error",
+    });
+  }
+});
+
 export default router;
