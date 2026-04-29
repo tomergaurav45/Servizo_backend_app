@@ -8,11 +8,35 @@ const bookingSchema = new mongoose.Schema(
       index: true,
     },
 
-    userId: {
-      type: String,
-      required: true,
-      index: true,
+    
+    participants: {
+      user: {
+        userId: {
+          type: String,
+          required: true,
+          index: true,
+        },
+        name: String,
+        phone: String,
+        email: String,
+        gender: String,
+      },
+
+      provider: {
+        providerId: {
+          type: String,
+          default: null,
+          index: true,
+        },
+        name: String,
+        phone: String,
+        email: String,
+        gender: String,
+        experience: String,
+        availability: String,
+      },
     },
+
     serviceCategory: {
       type: String,
       required: true,
@@ -53,13 +77,6 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       enum: ["OPEN", "ASSIGNED", "COMPLETED", "CANCELLED"],
       default: "OPEN",
-      index: true,
-    },
-
-
-    providerId: {
-      type: String,
-      default: null,
       index: true,
     },
   },

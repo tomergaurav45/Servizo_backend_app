@@ -25,15 +25,36 @@ router.post("/accept", async (req, res) => {
       });
     }
 
-
     if (booking.status !== "OPEN") {
       return res.json({
         success: false,
         message: "Already accepted by another provider",
       });
     }
+
+    
+    const provider = await UserSetup.findOne({ userId: providerId });
+
+    if (!provider) {
+      return res.json({
+        success: false,
+        message: "Provider not found",
+      });
+    }
+
+   
+    booking.participants.provider = {
+      providerId: provider.userId,
+      name: provider.name,
+      phone: provider.phone,
+      email: provider.email,
+      gender: provider.gender,
+      experience: provider.experience,
+      availability: provider.availability,
+    };
+
+   
     booking.status = "ASSIGNED";
-    booking.providerId = providerId;
 
     await booking.save();
 

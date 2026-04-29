@@ -1,23 +1,25 @@
 import express from "express";
 import Booking from "../models/BookingDetails.js";
+import User from "../models/UserSetup.js";
+import UserAddress from "../models/UserAddress.js";
 
 const router = express.Router();
-
 
 router.post("/create-booking", async (req, res) => {
   try {
     const {
       userId,
+      addressId,
       serviceName,
       subService,
       serviceCategory,
       description,
       notes,
-      address,
       providerId,
     } = req.body;
 
-    if (!userId || !serviceName || !serviceCategory || !subService || !description || !address) {
+
+    if (!userId || !serviceName || !serviceCategory || !subService || !description || !addressId) {
       return res.status(400).json({
         success: false,
         message: "Required fields missing",
@@ -25,10 +27,30 @@ router.post("/create-booking", async (req, res) => {
     }
 
 
+    const user = await User.findOne({ userId });
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+
+    const addressDoc = await UserAddress.findOne({ userId });
+    if (!addressDoc) {
+      return res.json({ success: false, message: "Address not found" });
+    }
+
+    const selectedAddress = addressDoc.addresses.find(
+      (addr) => addr._id.toString() === addressId
+    );
+
+    if (!selectedAddress) {
+      return res.json({ success: false, message: "Invalid addressId" });
+    }
+
+
     const lastBooking = await Booking.findOne().sort({ createdAt: -1 });
 
     let nextId = 1;
-    if (lastBooking && lastBooking.bookingId) {
+    if (lastBooking?.bookingId) {
       const lastNumber = parseInt(lastBooking.bookingId.replace("BK", ""));
       nextId = lastNumber + 1;
     }
@@ -36,24 +58,65 @@ router.post("/create-booking", async (req, res) => {
     const bookingId = `BK${String(nextId).padStart(4, "0")}`;
 
 
+    let providerData = null;
+    let status = "OPEN";
+
+    if (providerId) {
+      const provider = await User.findOne({ userId: providerId });
+
+      if (provider) {
+        providerData = {
+          providerId: provider.userId,
+          name: provider.name,
+          phone: provider.phone,
+          email: provider.email,
+          gender: provider.gender,
+          experience: provider.experience,
+          availability: provider.availability,
+        };
+
+        status = "ASSIGNED";
+      }
+    }
+
+
     const newBooking = new Booking({
       bookingId,
-      userId,
+
+      participants: {
+        user: {
+          userId: user.userId,
+          name: user.name,
+          phone: user.phone,
+          email: user.email,
+          gender: user.gender,
+        },
+        provider: providerData,
+      },
+
       serviceName,
       serviceCategory,
       subService,
       description,
       notes,
-      address,
-      status: providerId ? "ASSIGNED" : "OPEN",
-      providerId: providerId || null,
+
+      address: {
+        title: selectedAddress.type,
+        fullAddress: selectedAddress.fullAddress,
+        landmark: selectedAddress.landmark,
+        latitude: selectedAddress.latitude,
+        longitude: selectedAddress.longitude,
+        city: selectedAddress.city,
+      },
+
+      status,
     });
 
     await newBooking.save();
 
     return res.status(201).json({
       success: true,
-      message: providerId
+      message: status === "ASSIGNED"
         ? "Booking created and assigned to provider"
         : "Booking created successfully",
       data: newBooking,
