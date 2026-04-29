@@ -105,18 +105,40 @@ router.get("/provider-requests", async (req, res) => {
       });
     }
 
-    const requests = await Booking.find({
+    
+    const openJobs = await Booking.find({
       status: "OPEN",
       serviceCategory: { $in: provider.skills },
       "address.city": defaultAddress.city,
-    }).sort({ createdAt: -1 });
+    });
+
+   
+    const assignedJobs = await Booking.find({
+      status: "ASSIGNED",
+      "participants.provider.providerId": providerId,
+    });
+
+    
+    const completedJobs = await Booking.find({
+      status: "COMPLETED",
+      "participants.provider.providerId": providerId,
+    });
+
+    
+    const allJobs = [
+      ...openJobs,
+      ...assignedJobs,
+      ...completedJobs,
+    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     res.json({
       success: true,
-      data: requests,
+      data: allJobs,
     });
 
   } catch (err) {
+    console.error("Provider Requests Error:", err);
+
     res.json({
       success: false,
       message: "Server error",

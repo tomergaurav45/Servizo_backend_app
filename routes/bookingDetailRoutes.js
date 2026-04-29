@@ -16,6 +16,7 @@ router.post("/create-booking", async (req, res) => {
       description,
       notes,
       providerId,
+      price,
     } = req.body;
 
 
@@ -99,6 +100,7 @@ router.post("/create-booking", async (req, res) => {
       subService,
       description,
       notes,
+      price: price || 0,
 
       address: {
         title: selectedAddress.type,
@@ -124,6 +126,37 @@ router.post("/create-booking", async (req, res) => {
 
   } catch (error) {
     console.error("Create Booking Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+});
+
+
+router.get("/user-bookings", async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.json({
+        success: false,
+        message: "userId is required",
+      });
+    }
+
+    const bookings = await Booking.find({
+      "participants.user.userId": userId,
+    }).sort({ createdAt: -1 });
+
+    return res.json({
+      success: true,
+      data: bookings,
+    });
+
+  } catch (error) {
+    console.error("Get User Bookings Error:", error);
 
     return res.status(500).json({
       success: false,

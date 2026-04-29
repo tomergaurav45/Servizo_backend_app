@@ -7,8 +7,6 @@ const bookingSchema = new mongoose.Schema(
       unique: true,
       index: true,
     },
-
-    
     participants: {
       user: {
         userId: {
@@ -61,6 +59,10 @@ const bookingSchema = new mongoose.Schema(
 
     notes: {
       type: String,
+    },
+    price: {
+      type: Number,
+      default: 0,
     },
 
     address: {
