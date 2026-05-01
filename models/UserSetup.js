@@ -37,6 +37,7 @@ const userSetupSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+   
 
     dob: {
       type: String,
@@ -58,6 +59,10 @@ const userSetupSchema = new mongoose.Schema(
     availability: {
       type: String,   
     },
+     isOnline: {
+  type: Boolean,
+  default: false
+},
   },
   {
     timestamps: true,

@@ -19,6 +19,8 @@ router.post("/register", async (req, res) => {
       skills,
       experience,
       availability,
+      isOnline 
+
     } = req.body;
 
 
@@ -32,6 +34,7 @@ router.post("/register", async (req, res) => {
       if (phone !== undefined) updateData.phone = phone;
       if (dob !== undefined) updateData.dob = dob;
       if (gender !== undefined) updateData.gender = gender;
+      if (isOnline !== undefined) updateData.isOnline = isOnline;
 
       if (Array.isArray(skills)) updateData.skills = skills;
 
@@ -123,6 +126,8 @@ router.post("/register", async (req, res) => {
 });
 
 
+
+
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -173,11 +178,57 @@ router.post("/login", async (req, res) => {
         dob: user.dob,
         experience: user.experience,
         gender: user.gender,
-        phone: user.phone
+        phone: user.phone,
+        isOnline: user.isOnline
       },
     });
   } catch (error) {
     console.error("Login error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+});
+
+
+router.post("/update-online-status", async (req, res) => {
+  try {
+    const { userId, isOnline } = req.body;
+
+    // ✅ validation
+    if (!userId || typeof isOnline !== "boolean") {
+      return res.json({
+        success: false,
+        message: "Invalid data",
+      });
+    }
+
+    const user = await UserSetup.findOneAndUpdate(
+      { userId },
+      { isOnline },
+      { new: true }
+    );
+
+    // ✅ check user
+    if (!user) {
+      return res.json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: isOnline
+        ? "User is now Online"
+        : "User is now Offline",
+      user,
+    });
+
+  } catch (error) {
+    console.error("Update online status error:", error);
+
     res.status(500).json({
       success: false,
       message: "Server error",
