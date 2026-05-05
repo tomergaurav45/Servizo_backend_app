@@ -2,6 +2,7 @@ import express from "express";
 import Booking from "../models/BookingDetails.js";
 import User from "../models/UserSetup.js";
 import UserAddress from "../models/UserAddress.js";
+import Notification from "../models/Notification.js";
 
 const router = express.Router();
 
@@ -116,6 +117,17 @@ router.post("/create-booking", async (req, res) => {
 
     await newBooking.save();
 
+    const providers = await User.find({ role: "provider" });
+
+    for (const provider of providers) {
+      await Notification.create({
+        userId: provider.userId,
+        title: "New Service Request",
+        message: `New booking for ${serviceName}`,
+        type: "booking",
+      });
+    }
+
     return res.status(201).json({
       success: true,
       message: status === "ASSIGNED"
@@ -185,7 +197,6 @@ router.post("/complete-booking", async (req, res) => {
       });
     }
 
-
     if (
       booking.participants?.provider?.providerId !== providerId
     ) {
@@ -194,7 +205,6 @@ router.post("/complete-booking", async (req, res) => {
         message: "Not authorized",
       });
     }
-
 
     if (booking.status !== "ASSIGNED") {
       return res.json({
@@ -205,8 +215,15 @@ router.post("/complete-booking", async (req, res) => {
 
 
     booking.status = "COMPLETED";
-
     await booking.save();
+
+
+    await Notification.create({
+      userId: booking.participants.user.userId,
+      title: "Service Completed 🎉",
+      message: `${booking.serviceName} service completed successfully`,
+      type: "booking",
+    });
 
     res.json({
       success: true,

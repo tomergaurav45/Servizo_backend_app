@@ -13,6 +13,7 @@ import allServices from "./routes/serviceRoutes.js"
 import createBooking from "./routes/bookingDetailRoutes.js"
 import providerrequest from "./routes/requestRoutes.js"
 import reviews from "./routes/reviewRoutes.js"
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 const app = express();
 const PORT = 5000;
@@ -29,6 +30,7 @@ app.use("/api", createBooking);
 app.use("/api", allServices );
 app.use("/api", providerrequest );
 app.use("/api", reviews );
+app.use("/api", notificationRoutes);
 
 mongoose
   .connect(process.env.MONGODB_URI)
