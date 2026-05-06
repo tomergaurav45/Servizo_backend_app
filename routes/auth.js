@@ -196,21 +196,23 @@ router.post("/update-online-status", async (req, res) => {
   try {
     const { userId, isOnline } = req.body;
 
-    // ✅ validation
-    if (!userId || typeof isOnline !== "boolean") {
+    if (!userId) {
       return res.json({
         success: false,
-        message: "Invalid data",
+        message: "UserId required",
       });
     }
 
+    // 🔥 ensure boolean
+    const isOnlineBool =
+      isOnline === true || isOnline === "true";
+
     const user = await UserSetup.findOneAndUpdate(
       { userId },
-      { isOnline },
+      { isOnline: isOnlineBool },
       { new: true }
     );
 
-    // ✅ check user
     if (!user) {
       return res.json({
         success: false,
@@ -220,10 +222,10 @@ router.post("/update-online-status", async (req, res) => {
 
     res.json({
       success: true,
-      message: isOnline
+      isOnline: user.isOnline,
+      message: user.isOnline
         ? "User is now Online"
         : "User is now Offline",
-      user,
     });
 
   } catch (error) {
