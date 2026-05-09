@@ -117,7 +117,10 @@ router.post("/create-booking", async (req, res) => {
 
     await newBooking.save();
 
-    const providers = await User.find({ role: "provider" });
+    const providers = await User.find({
+      role: "provider",
+      isOnline: true
+    });
 
     for (const provider of providers) {
       await Notification.create({
