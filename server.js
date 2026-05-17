@@ -18,6 +18,7 @@ import reviews from "./routes/reviewRoutes.js"
 import notificationRoutes from "./routes/notificationRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import Chat from "./models/Chat.js";
+import serviceVariants from "./routes/serviceVariantsRoutes.js";
 
 const app = express();
 const PORT = 5000;
@@ -83,6 +84,8 @@ app.use("/api", providerrequest );
 app.use("/api", reviews );
 app.use("/api", notificationRoutes);
 app.use("/api", chatRoutes);
+app.use("/api", serviceVariants);
+
 
 mongoose
   .connect(process.env.MONGODB_URI)
