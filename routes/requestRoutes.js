@@ -2,7 +2,7 @@ import express from "express";
 import Booking from "../models/BookingDetails.js";
 import UserSetup from "../models/UserSetup.js";
 import UserAddress from "../models/UserAddress.js";
-import Notification from "../models/Notification.js";
+import Notification from "../models/Notification.js"
 
 const router = express.Router();
 
@@ -114,11 +114,11 @@ router.get("/provider-requests", async (req, res) => {
     }
 
 
-    const openJobs = await Booking.find({
-      status: "OPEN",
-      serviceCategory: { $in: provider.skills },
-      "address.city": defaultAddress.city,
-    });
+const openJobs = await Booking.find({
+  status: "OPEN",
+  serviceName: { $in: provider.skills },
+  "address.city": defaultAddress.city,
+});
 
 
     const assignedJobs = await Booking.find({
