@@ -182,12 +182,17 @@ router.get("/user-bookings", async (req, res) => {
 
 router.post("/complete-booking", async (req, res) => {
   try {
-    const { bookingId, providerId } = req.body;
+    const {
+      bookingId,
+      providerId,
+      userId,
+      action,
+    } = req.body;
 
-    if (!bookingId || !providerId) {
+    if (!bookingId) {
       return res.json({
         success: false,
-        message: "bookingId and providerId required",
+        message: "bookingId required",
       });
     }
 
@@ -200,38 +205,103 @@ router.post("/complete-booking", async (req, res) => {
       });
     }
 
-    if (
-      booking.participants?.provider?.providerId !== providerId
-    ) {
+    // =====================================================
+    // PROVIDER REQUESTS COMPLETION
+    // =====================================================
+
+    if (action === "REQUEST_COMPLETION") {
+
+      if (!providerId) {
+        return res.json({
+          success: false,
+          message: "providerId required",
+        });
+      }
+
+      if (
+        booking.participants?.provider?.providerId !== providerId
+      ) {
+        return res.json({
+          success: false,
+          message: "Not authorized",
+        });
+      }
+
+      if (booking.status !== "ASSIGNED") {
+        return res.json({
+          success: false,
+          message: "Job not in progress",
+        });
+      }
+
+      booking.status = "COMPLETION_REQUESTED";
+      await booking.save();
+
+      // 🔔 notify customer
+      await Notification.create({
+        userId: booking.participants.user.userId,
+        title: "Work Marked as Completed",
+        message: `${booking.serviceName} marked as completed. Please confirm completion.`,
+        type: "booking",
+      });
+
       return res.json({
-        success: false,
-        message: "Not authorized",
+        success: true,
+        message: "Completion request sent",
+        data: booking,
       });
     }
 
-    if (booking.status !== "ASSIGNED") {
+    // =====================================================
+    // CUSTOMER CONFIRMS COMPLETION
+    // =====================================================
+
+    if (action === "CONFIRM_COMPLETION") {
+
+      if (!userId) {
+        return res.json({
+          success: false,
+          message: "userId required",
+        });
+      }
+
+      if (
+        booking.participants?.user?.userId !== userId
+      ) {
+        return res.json({
+          success: false,
+          message: "Not authorized",
+        });
+      }
+
+      if (booking.status !== "COMPLETION_REQUESTED") {
+        return res.json({
+          success: false,
+          message: "Completion not requested yet",
+        });
+      }
+
+      booking.status = "COMPLETED";
+      await booking.save();
+
+      // 🔔 notify provider
+      await Notification.create({
+        userId: booking.participants.provider.providerId,
+        title: "Booking Completed 🎉",
+        message: `${booking.serviceName} confirmed completed by customer.`,
+        type: "booking",
+      });
+
       return res.json({
-        success: false,
-        message: "Job not in progress",
+        success: true,
+        message: "Booking completed successfully",
+        data: booking,
       });
     }
 
-
-    booking.status = "COMPLETED";
-    await booking.save();
-
-
-    await Notification.create({
-      userId: booking.participants.user.userId,
-      title: "Service Completed 🎉",
-      message: `${booking.serviceName} service completed successfully`,
-      type: "booking",
-    });
-
-    res.json({
-      success: true,
-      message: "Job completed successfully",
-      data: booking,
+    return res.json({
+      success: false,
+      message: "Invalid action",
     });
 
   } catch (err) {
