@@ -122,14 +122,14 @@ router.post("/create-booking", async (req, res) => {
       isOnline: true
     });
 
-    for (const provider of providers) {
-      await Notification.create({
-        userId: provider.userId,
-        title: "New Service Request",
-        message: `New booking for ${serviceName}`,
-        type: "booking",
-      });
-    }
+   for (const provider of providers) {
+  Notification.create({
+    userId: provider.userId,
+    title: "New Service Request",
+    message: `New booking for ${serviceName}`,
+    type: "booking",
+  });
+}
 
     return res.status(201).json({
       success: true,
@@ -209,48 +209,51 @@ router.post("/complete-booking", async (req, res) => {
     // PROVIDER REQUESTS COMPLETION
     // =====================================================
 
-    if (action === "REQUEST_COMPLETION") {
+   if (action === "REQUEST_COMPLETION") {
 
-      if (!providerId) {
-        return res.json({
-          success: false,
-          message: "providerId required",
-        });
-      }
+  if (!providerId) {
+    return res.json({
+      success: false,
+      message: "providerId required",
+    });
+  }
 
-      if (
-        booking.participants?.provider?.providerId !== providerId
-      ) {
-        return res.json({
-          success: false,
-          message: "Not authorized",
-        });
-      }
+  if (
+    booking.participants?.provider?.providerId !== providerId
+  ) {
+    return res.json({
+      success: false,
+      message: "Not authorized",
+    });
+  }
 
-      if (booking.status !== "ASSIGNED") {
-        return res.json({
-          success: false,
-          message: "Job not in progress",
-        });
-      }
+  if (booking.status !== "ASSIGNED") {
+    return res.json({
+      success: false,
+      message: "Job not in progress",
+    });
+  }
 
-      booking.status = "COMPLETION_REQUESTED";
-      await booking.save();
+  booking.status = "COMPLETION_REQUESTED";
 
-      // 🔔 notify customer
-      await Notification.create({
-        userId: booking.participants.user.userId,
-        title: "Work Marked as Completed",
-        message: `${booking.serviceName} marked as completed. Please confirm completion.`,
-        type: "booking",
-      });
+  await booking.save();
 
-      return res.json({
-        success: true,
-        message: "Completion request sent",
-        data: booking,
-      });
-    }
+  // notification should not break api
+  Notification.create({
+    userId: booking.participants?.user?.userId,
+    title: "Work Marked as Completed",
+    message: `${booking.serviceName} marked as completed. Please confirm completion.`,
+    type: "booking",
+  }).catch((err) => {
+    console.log("Notification Error:", err);
+  });
+
+  return res.json({
+    success: true,
+    message: "Completion request sent",
+    data: booking,
+  });
+}
 
     // =====================================================
     // CUSTOMER CONFIRMS COMPLETION
@@ -284,13 +287,16 @@ router.post("/complete-booking", async (req, res) => {
       booking.status = "COMPLETED";
       await booking.save();
 
-      // 🔔 notify provider
-      await Notification.create({
-        userId: booking.participants.provider.providerId,
-        title: "Booking Completed 🎉",
-        message: `${booking.serviceName} confirmed completed by customer.`,
-        type: "booking",
-      });
+    try {
+  Notification.create({
+  userId: booking.participants?.provider?.providerId,
+    title: "Booking Completed 🎉",
+    message: `${booking.serviceName} confirmed completed by customer.`,
+    type: "booking",
+  });
+} catch (notificationError) {
+  console.log("Notification Error:", notificationError);
+}
 
       return res.json({
         success: true,

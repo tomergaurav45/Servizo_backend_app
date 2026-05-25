@@ -2,7 +2,7 @@ import express from "express";
 import Booking from "../models/BookingDetails.js";
 import UserSetup from "../models/UserSetup.js";
 import UserAddress from "../models/UserAddress.js";
-import Notification from "../models/Notification.js"
+import Notification from "../models/Notification.js";
 
 const router = express.Router();
 
@@ -59,12 +59,16 @@ router.post("/accept", async (req, res) => {
 
     await booking.save();
 
-    await Notification.create({
-      userId: booking.participants.user.userId,
-      title: "Booking Accepted ✅",
-      message: `${provider.name} accepted your ${booking.serviceName} request`,
-      type: "booking",
-    });
+    try {
+  await Notification.create({
+    userId: booking.participants.user.userId,
+    title: "Booking Accepted ✅",
+    message: `${provider.name} accepted your ${booking.serviceName} request`,
+    type: "booking",
+  });
+} catch (notificationError) {
+  console.log("Notification Error:", notificationError);
+}
 
     res.json({
       success: true,
@@ -114,17 +118,18 @@ router.get("/provider-requests", async (req, res) => {
     }
 
 
-const openJobs = await Booking.find({
+    const openJobs = await Booking.find({
   status: "OPEN",
-  serviceName: { $in: provider.skills },
-  "address.city": defaultAddress.city,
+  serviceCategory: { $in: provider.skills },
 });
 
 
-    const assignedJobs = await Booking.find({
-      status: "ASSIGNED",
-      "participants.provider.providerId": providerId,
-    });
+const assignedJobs = await Booking.find({
+  status: {
+    $in: ["ASSIGNED", "COMPLETION_REQUESTED"]
+  },
+  "participants.provider.providerId": providerId,
+});
 
 
     const completedJobs = await Booking.find({

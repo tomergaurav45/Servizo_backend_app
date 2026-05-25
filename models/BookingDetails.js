@@ -76,11 +76,17 @@ const bookingSchema = new mongoose.Schema(
     },
 
     status: {
-      type: String,
-      enum: ["OPEN", "ASSIGNED", "COMPLETED", "CANCELLED"],
-      default: "OPEN",
-      index: true,
-    },
+  type: String,
+  enum: [
+    "OPEN",
+    "ASSIGNED",
+    "COMPLETION_REQUESTED",
+    "COMPLETED",
+    "CANCELLED",
+  ],
+  default: "OPEN",
+  index: true,
+},
   },
   {
     timestamps: true,
