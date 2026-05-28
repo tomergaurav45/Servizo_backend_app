@@ -50,4 +50,24 @@ router.post("/create", async (req, res) => {
   }
 });
 
+router.delete("/delete-all/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    await Notification.deleteMany({ userId });
+
+    res.json({
+      success: true,
+      message: "All notifications deleted successfully",
+    });
+  } catch (err) {
+    console.log("DELETE NOTIFICATION ERROR:", err);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete notifications",
+    });
+  }
+});
+
 export default router;
