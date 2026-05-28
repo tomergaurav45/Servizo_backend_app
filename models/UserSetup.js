@@ -37,7 +37,7 @@ const userSetupSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-   
+
 
     dob: {
       type: String,
@@ -49,20 +49,20 @@ const userSetupSchema = new mongoose.Schema(
     },
 
     skills: {
-      type: [String],   
+      type: [String],
     },
 
     experience: {
-      type: String,   
+      type: String,
     },
 
     availability: {
-      type: String,   
+      type: String,
     },
-     isOnline: {
-  type: Boolean,
-  default: false
-},
+    isOnline: {
+      type: Boolean,
+      default: false
+    },
   },
   {
     timestamps: true,

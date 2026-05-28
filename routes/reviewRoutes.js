@@ -51,16 +51,16 @@ router.post("/add-review", async (req, res) => {
         await newReview.save();
 
         try {
-    await Notification.create({
-    userId: providerId,
-    bookingId,
-    title: "New Review ⭐",
-    message: `You received a ${rating} star review for ${booking.serviceName}`,
-    type: "review",
-});
-} catch (notificationError) {
-    console.log("Notification Error:", notificationError);
-}
+            await Notification.create({
+                userId: providerId,
+                bookingId,
+                title: "New Review ⭐",
+                message: `You received a ${rating} star review for ${booking.serviceName}`,
+                type: "review",
+            });
+        } catch (notificationError) {
+            console.log("Notification Error:", notificationError);
+        }
 
 
         res.json({

@@ -19,7 +19,7 @@ router.post("/register", async (req, res) => {
       skills,
       experience,
       availability,
-      isOnline 
+      isOnline
 
     } = req.body;
 
@@ -203,7 +203,6 @@ router.post("/update-online-status", async (req, res) => {
       });
     }
 
-    // 🔥 ensure boolean
     const isOnlineBool =
       isOnline === true || isOnline === "true";
 

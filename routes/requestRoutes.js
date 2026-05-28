@@ -60,15 +60,15 @@ router.post("/accept", async (req, res) => {
     await booking.save();
 
     try {
-  await Notification.create({
-    userId: booking.participants.user.userId,
-    title: "Booking Accepted ✅",
-    message: `${provider.name} accepted your ${booking.serviceName} request`,
-    type: "booking",
-  });
-} catch (notificationError) {
-  console.log("Notification Error:", notificationError);
-}
+      await Notification.create({
+        userId: booking.participants.user.userId,
+        title: "Booking Accepted ✅",
+        message: `${provider.name} accepted your ${booking.serviceName} request`,
+        type: "booking",
+      });
+    } catch (notificationError) {
+      console.log("Notification Error:", notificationError);
+    }
 
     res.json({
       success: true,
@@ -119,17 +119,17 @@ router.get("/provider-requests", async (req, res) => {
 
 
     const openJobs = await Booking.find({
-  status: "OPEN",
-  serviceCategory: { $in: provider.skills },
-});
+      status: "OPEN",
+      serviceCategory: { $in: provider.skills },
+    });
 
 
-const assignedJobs = await Booking.find({
-  status: {
-    $in: ["ASSIGNED", "COMPLETION_REQUESTED"]
-  },
-  "participants.provider.providerId": providerId,
-});
+    const assignedJobs = await Booking.find({
+      status: {
+        $in: ["ASSIGNED", "COMPLETION_REQUESTED"]
+      },
+      "participants.provider.providerId": providerId,
+    });
 
 
     const completedJobs = await Booking.find({

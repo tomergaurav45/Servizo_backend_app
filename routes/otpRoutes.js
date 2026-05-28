@@ -33,7 +33,7 @@ const sendWelcomeEmail = async (email, name) => {
       to: email,
       subject: "Welcome to Servizo",
       html: `
-        <h2>Welcome ${name} 🎉</h2>
+        <h2>Welcome ${name} </h2>
         <p>Thanks for joining Servizo</p>
       `,
     });
@@ -56,7 +56,6 @@ router.post("/send-email-otp", async (req, res) => {
       });
     }
 
-    // CHECK EMAIL ALREADY EXISTS
     const existingUser = await UserSetup.findOne({ email });
 
     if (existingUser) {
@@ -66,16 +65,13 @@ router.post("/send-email-otp", async (req, res) => {
       });
     }
 
-    // GENERATE OTP
     const otp = generateOTP();
 
-    // STORE OTP
     otpStore.set(email, {
       otp,
       expiresAt: Date.now() + OTP_EXPIRY,
     });
 
-    // SEND OTP MAIL
     await sendOTP(email, otp);
 
     res.json({
