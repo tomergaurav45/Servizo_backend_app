@@ -7,10 +7,12 @@ import nodemailer from "nodemailer";
 const router = express.Router();
 
  const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
     user: "tomergaurav177@gmail.com",
-    pass: "pjoy jtvp klpn wakq", 
+    pass: "zorkysifqpawpgzi",
   },
 });
 
@@ -27,7 +29,7 @@ const generateOTP = () =>
 const sendWelcomeEmail = async (email, name) => {
   try {
     await transporter.sendMail({
-      from: "Servizo <yourgmail@gmail.com>",
+      from: "Servizo <tomergaurav177@gmail.com>",
       to: email,
       subject: "Welcome to Servizo",
       html: `
@@ -54,24 +56,37 @@ router.post("/send-email-otp", async (req, res) => {
       });
     }
 
-    
-    const otp = Math.floor(100000 + Math.random() * 900000);
+    // CHECK EMAIL ALREADY EXISTS
+    const existingUser = await UserSetup.findOne({ email });
 
+    if (existingUser) {
+      return res.json({
+        success: false,
+        message: "Email already registered",
+      });
+    }
+
+    // GENERATE OTP
+    const otp = generateOTP();
+
+    // STORE OTP
     otpStore.set(email, {
-  otp,
-  expiresAt: Date.now() + OTP_EXPIRY,
-});
+      otp,
+      expiresAt: Date.now() + OTP_EXPIRY,
+    });
 
+    // SEND OTP MAIL
     await sendOTP(email, otp);
 
     res.json({
       success: true,
       message: "OTP sent successfully",
-      otp, 
     });
 
   } catch (error) {
-    res.json({
+    console.log("SEND OTP ERROR:", error);
+
+    res.status(500).json({
       success: false,
       message: "Failed to send OTP",
     });
