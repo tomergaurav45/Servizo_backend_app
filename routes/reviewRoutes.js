@@ -2,6 +2,7 @@ import Reviews from "../models/Reviews.js";
 import express from "express";
 import Booking from "../models/BookingDetails.js";
 import UserSetup from "../models/UserSetup.js";
+import Notification from "../models/notification.js";
 
 const router = express.Router();
 
